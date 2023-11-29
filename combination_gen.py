@@ -1,5 +1,6 @@
 import copy
 
+
 def gen_comb_list(list_set):
     if len(list_set) == 1:
         start_list = []
