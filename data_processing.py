@@ -5,7 +5,7 @@ __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 movies = []
-with open(os.path.realpath(__location__, "movies.csv")) as f:
+with open(os.path.join(__location__, "movies.csv"))as f:
     rows = csv.DictReader(f)
     for r in rows:
         movies.append(dict(r))
@@ -123,5 +123,41 @@ class Table:
         For example, my_table.update_row('Film', 'A Serious Man', 'Year', '2022') will change the 'Year' attribute for the 'Film'
         'A Serious Man' from 2009 to 2022
         '''
+        for row in self.table:
+            if row[primary_attribute] == primary_attribute_value:
+                row[update_attribute] = update_value
 
 
+movies_table = Table("movies", movies)
+
+comedy_average = movies_table.filter(lambda x: x['Genre'] == 'Comedy').aggregate(
+    lambda values: sum(values) / len(values) if len(values) > 0 else 0, 'Worldwide Gross')
+print(f'Average Worldwide Gross for Comedy movies: {comedy_average:.3f}')
+
+drama_min = movies_table.filter(lambda x: x['Genre'] == 'Drama').aggregate(
+    lambda values: min(values) if len(values) > 0 else 0, 'Audience score %')
+print(f'Minimum Audience score % for Drama movies: {drama_min}')
+
+fantasy_count_before = len(movies_table.filter(lambda x: x['Genre'] == 'Fantasy').table)
+print(f'\nNumber of Fantasy movies before: {fantasy_count_before }')
+
+new_movie = {
+    'Film': 'The Shape of Water',
+    'Genre': 'Fantasy',
+    'Lead Studio': 'Fox',
+    'Audience score %': '72',
+    'Profitability': '9.765',
+    'Rotten Tomatoes %': '92',
+    'Worldwide Gross': '195.3',
+    'Year': '2017'
+}
+
+movies_table.insert_row(new_movie)
+
+fantasy_count_after = len(movies_table.filter(lambda x: x['Genre'] == 'Fantasy').table)
+print(f'Number of Fantasy movies after insertion: {fantasy_count_after}\n')
+
+movies_table.update_row('Film', 'A Serious Man', 'Year', '2022')
+
+
+print(movies_table)
